@@ -11,9 +11,9 @@ StayInsight helps hospitality businesses analyze guest reviews, identify sentime
 * React.js
 * Node.js
 * Express.js
-* Google Gemini API
 * MongoDB
 * JavaScript
+* Google Gemini API
 
 ## Setup
 
