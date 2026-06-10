@@ -1,12 +1,12 @@
-InsightStay
+#InsightStay
 
 AI-powered guest feedback intelligence platform.
 
-Overview
+#Overview
 
 InsightStay helps hospitality businesses analyze guest reviews, identify sentiment, detect key experience themes, and generate contextual responses using artificial intelligence.
 
-Tech Stack
+#Tech Stack
 
 * React.js
 * Node.js
@@ -15,6 +15,6 @@ Tech Stack
 * JavaScript
 * Google Gemini API
 
-Setup
+#Setup
 
 Coming soon...
