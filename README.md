@@ -1,12 +1,12 @@
-# StayInsight
+InsightStay
 
 AI-powered guest feedback intelligence platform.
 
-## Overview
+Overview
 
-StayInsight helps hospitality businesses analyze guest reviews, identify sentiment, detect key experience themes, and generate contextual responses using artificial intelligence.
+InsightStay helps hospitality businesses analyze guest reviews, identify sentiment, detect key experience themes, and generate contextual responses using artificial intelligence.
 
-## Tech Stack
+Tech Stack
 
 * React.js
 * Node.js
@@ -15,6 +15,6 @@ StayInsight helps hospitality businesses analyze guest reviews, identify sentime
 * JavaScript
 * Google Gemini API
 
-## Setup
+Setup
 
 Coming soon...
