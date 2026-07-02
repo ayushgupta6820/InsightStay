@@ -1,100 +1,165 @@
-const reviews = require("../data/reviews");
+const Review = require("../models/Review");
 
 // GET all reviews
-const getAllReviews = (req, res) => {
-  res.status(200).json(reviews);
-};
+const getAllReviews = async (req, res) => {
 
-// GET review by ID
-const getReviewById = (req, res) => {
-  const id = Number(req.params.id);
+  try {
 
-  const review = reviews.find((r) => r.id === id);
+    const reviews = await Review.find();
 
-  if (!review) {
-    return res.status(404).json({
-      message: "Review not found",
-    });
+    res.status(200).json(reviews);
+
   }
 
-  res.status(200).json(review);
+  catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+
+  }
+
+};
+// GET review by ID
+const getReviewById = async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+
+    if (!review) {
+      return res.status(404).json({
+        success: false,
+        message: "Review not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: review,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 // POST new review
-const createReview = (req, res) => {
-  const { guest, hotel, review, sentiment } = req.body;
+const createReview = async (req, res) => {
+  try {
+    const { guest, hotel, review, sentiment } = req.body;
 
-  if (!guest || !hotel || !review || !sentiment) {
-    return res.status(400).json({
-      message: "All fields are required",
+    if (!guest || !hotel || !review || !sentiment) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
+
+    const newReview = await Review.create({
+      guest,
+      hotel,
+      review,
+      sentiment,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Review created successfully",
+      data: newReview,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
-
-  const newReview = {
-    id: reviews.length + 1,
-    guest,
-    hotel,
-    review,
-    sentiment,
-  };
-
-  reviews.push(newReview);
-
-  res.status(201).json(newReview);
 };
 
 // PUT update review
-const updateReview = (req, res) => {
-  const id = Number(req.params.id);
+const updateReview = async (req, res) => {
+  try {
+    const updatedReview = await Review.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
-  const reviewItem = reviews.find((r) => r.id === id);
+    if (!updatedReview) {
+      return res.status(404).json({
+        success: false,
+        message: "Review not found",
+      });
+    }
 
-  if (!reviewItem) {
-    return res.status(404).json({
-      message: "Review not found",
+    res.status(200).json({
+      success: true,
+      message: "Review updated successfully",
+      data: updatedReview,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
-
-  reviewItem.guest = req.body.guest || reviewItem.guest;
-  reviewItem.hotel = req.body.hotel || reviewItem.hotel;
-  reviewItem.review = req.body.review || reviewItem.review;
-  reviewItem.sentiment = req.body.sentiment || reviewItem.sentiment;
-
-  res.status(200).json(reviewItem);
 };
 
 // DELETE review
-const deleteReview = (req, res) => {
-  const id = Number(req.params.id);
+const deleteReview = async (req, res) => {
+  try {
+    const deletedReview = await Review.findByIdAndDelete(req.params.id);
 
-  const index = reviews.findIndex((r) => r.id === id);
+    if (!deletedReview) {
+      return res.status(404).json({
+        success: false,
+        message: "Review not found",
+      });
+    }
 
-  if (index === -1) {
-    return res.status(404).json({
-      message: "Review not found",
+    res.status(200).json({
+      success: true,
+      message: "Review deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
-
-  reviews.splice(index, 1);
-
-  res.status(204).send();
 };
 
 // SEARCH reviews
-const searchReviews = (req, res) => {
-  const query = req.query.q?.toLowerCase() || "";
+const searchReviews = async (req, res) => {
+  try {
+    const query = req.query.q || "";
 
-  const results = reviews.filter(
-    (r) =>
-      r.guest.toLowerCase().includes(query) ||
-      r.hotel.toLowerCase().includes(query) ||
-      r.review.toLowerCase().includes(query) ||
-      r.sentiment.toLowerCase().includes(query)
-  );
+    const reviews = await Review.find({
+      $or: [
+        { guest: { $regex: query, $options: "i" } },
+        { hotel: { $regex: query, $options: "i" } },
+        { review: { $regex: query, $options: "i" } },
+        { sentiment: { $regex: query, $options: "i" } },
+      ],
+    });
 
-  res.status(200).json(results);
+    res.status(200).json({
+      success: true,
+      count: reviews.length,
+      data: reviews,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+  
 };
-
 module.exports = {
   getAllReviews,
   getReviewById,
