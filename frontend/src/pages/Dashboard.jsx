@@ -9,8 +9,10 @@ import Toast from "../components/ui/Toast";
 import {
   getAllReviews,
   searchReviews,
+  createReview,
+  updateReview,
+  deleteReview,
 } from "../services/reviewService";
-
 function Dashboard({ darkMode, setDarkMode }) {
 
   const [reviews, setReviews] = useState([]);
@@ -22,6 +24,14 @@ function Dashboard({ darkMode, setDarkMode }) {
   const [error, setError] = useState("");
 
   const [search, setSearch] = useState("");
+  const [formData, setFormData] = useState({
+  guest: "",
+  hotel: "",
+  review: "",
+  sentiment: "Positive",
+});
+
+const [editingId, setEditingId] = useState(null);
 
   const loadReviews = async () => {
 
@@ -48,6 +58,88 @@ function Dashboard({ darkMode, setDarkMode }) {
     }
 
   };
+
+  const handleSubmit = async () => {
+
+  if (
+    !formData.guest ||
+    !formData.hotel ||
+    !formData.review
+  ) {
+    alert("Please fill all fields.");
+    return;
+  }
+
+  try {
+
+    if (editingId) {
+
+      await updateReview(editingId, formData);
+
+    } else {
+
+      await createReview(formData);
+
+    }
+
+    setFormData({
+      guest: "",
+      hotel: "",
+      review: "",
+      sentiment: "Positive",
+    });
+
+    setEditingId(null);
+
+    await loadReviews();
+
+  } catch (error) {
+
+    alert("Operation failed.");
+
+  }
+
+};
+
+const handleDelete = async (id) => {
+
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this review?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+
+    await deleteReview(id);
+
+    await loadReviews();
+
+  } catch (error) {
+
+    alert("Failed to delete review.");
+
+  }
+
+};
+
+const handleEdit = (review) => {
+
+  setEditingId(review._id);
+
+  setFormData({
+    guest: review.guest,
+    hotel: review.hotel,
+    review: review.review,
+    sentiment: review.sentiment,
+  });
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+
+};
 
   useEffect(() => {
 
@@ -153,7 +245,107 @@ function Dashboard({ darkMode, setDarkMode }) {
         />
       </div>
     )}
+    <div
+  className={
+    darkMode
+      ? "bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-700 mb-10"
+      : "bg-white rounded-2xl p-8 shadow mb-10"
+  }
+>
 
+  <h2 className="text-2xl font-bold mb-6">
+    {editingId ? "Update Review" : "Add New Review"}
+  </h2>
+
+  <div className="grid md:grid-cols-2 gap-5">
+
+    <input
+      type="text"
+      placeholder="Guest Name"
+      value={formData.guest}
+      onChange={(e)=>
+        setFormData({
+          ...formData,
+          guest:e.target.value
+        })
+      }
+      className={
+        darkMode
+          ? "bg-gray-900 border border-gray-700 rounded-xl p-3"
+          : "border rounded-xl p-3"
+      }
+    />
+
+    <input
+      type="text"
+      placeholder="Hotel Name"
+      value={formData.hotel}
+      onChange={(e)=>
+        setFormData({
+          ...formData,
+          hotel:e.target.value
+        })
+      }
+      className={
+        darkMode
+          ? "bg-gray-900 border border-gray-700 rounded-xl p-3"
+          : "border rounded-xl p-3"
+      }
+    />
+
+  </div>
+
+  <textarea
+    rows="4"
+    placeholder="Write Guest Review..."
+    value={formData.review}
+    onChange={(e)=>
+      setFormData({
+        ...formData,
+        review:e.target.value
+      })
+    }
+    className={
+      darkMode
+        ? "w-full mt-5 bg-gray-900 border border-gray-700 rounded-xl p-3"
+        : "w-full mt-5 border rounded-xl p-3"
+    }
+  />
+
+  <div className="flex flex-col md:flex-row gap-5 mt-5">
+
+    <select
+      value={formData.sentiment}
+      onChange={(e)=>
+        setFormData({
+          ...formData,
+          sentiment:e.target.value
+        })
+      }
+      className={
+        darkMode
+          ? "bg-gray-900 border border-gray-700 rounded-xl p-3"
+          : "border rounded-xl p-3"
+      }
+    >
+      <option>Positive</option>
+      <option>Neutral</option>
+      <option>Negative</option>
+    </select>
+
+    <button
+
+      onClick={handleSubmit}
+
+      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl"
+
+    >
+      {editingId ? "Update Review" : "Add Review"}
+    </button>
+
+  </div>
+
+</div>
     <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-6 mb-10">
 
       <div>
@@ -376,7 +568,7 @@ function Dashboard({ darkMode, setDarkMode }) {
           {filteredReviews.map((item) => (
 
             <div
-              key={item.id}
+              key={item._id}
               className={
                 darkMode
                   ? "bg-gray-900 rounded-xl p-6 border border-gray-700 hover:border-blue-500 transition"
@@ -427,6 +619,23 @@ function Dashboard({ darkMode, setDarkMode }) {
               >
                 {item.review}
               </p>
+              <div className="flex justify-end gap-3 mt-6">
+
+  <button
+    onClick={() => handleEdit(item)}
+    className="bg-yellow-500 hover:bg-yellow-600 text-white px-5 py-2 rounded-lg transition"
+  >
+    Edit
+  </button>
+
+  <button
+    onClick={() => handleDelete(item._id)}
+    className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg transition"
+  >
+    Delete
+  </button>
+
+</div>
 
             </div>
 
