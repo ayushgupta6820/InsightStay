@@ -75,7 +75,7 @@ The application stores guest reviews in a MongoDB collection named **reviews**.
 
 The following diagram illustrates the MongoDB data model used by InsightStay.
 
-![Database Schema](C:\Users\AYUSH\Pictures\InsightStay\backend\SchemaDiagram.png)
+![Database Schema](SchemaDiagram.png)
 
 ---
 
