@@ -1,3 +1,4 @@
+const verifyToken = require("../middleware/authMiddleware");
 const express = require("express");
 
 const router = express.Router();
@@ -11,16 +12,16 @@ const {
   searchReviews,
 } = require("../controllers/reviewController");
 
-router.get("/", getAllReviews);
+router.get("/", verifyToken, getAllReviews);
 
-router.get("/search", searchReviews);
+router.get("/search", verifyToken, searchReviews);
 
-router.get("/:id", getReviewById);
+router.get("/:id", verifyToken, getReviewById);
 
-router.post("/", createReview);
+router.post("/", verifyToken, createReview);
 
-router.put("/:id", updateReview);
+router.put("/:id", verifyToken, updateReview);
 
-router.delete("/:id", deleteReview);
+router.delete("/:id", verifyToken, deleteReview);
 
 module.exports = router;
