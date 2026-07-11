@@ -1,10 +1,13 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import ComponentsDemo from "./pages/ComponentsDemo";
 
 function App() {
@@ -19,6 +22,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+
         <Route
           path="/"
           element={
@@ -40,16 +44,6 @@ function App() {
         />
 
         <Route
-          path="/dashboard"
-          element={
-            <Dashboard
-              darkMode={darkMode}
-              setDarkMode={setDarkMode}
-            />
-          }
-        />
-
-        <Route
           path="/login"
           element={
             <Login
@@ -60,14 +54,39 @@ function App() {
         />
 
         <Route
-          path="/components"
+          path="/register"
           element={
-            <ComponentsDemo
+            <Register
               darkMode={darkMode}
               setDarkMode={setDarkMode}
             />
           }
         />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard
+                darkMode={darkMode}
+                setDarkMode={setDarkMode}
+              />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/components"
+          element={
+            <ProtectedRoute>
+              <ComponentsDemo
+                darkMode={darkMode}
+                setDarkMode={setDarkMode}
+              />
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
     </BrowserRouter>
   );

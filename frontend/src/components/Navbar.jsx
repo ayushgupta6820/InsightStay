@@ -1,6 +1,18 @@
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 
 function Navbar({ darkMode, setDarkMode }) {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+const handleLogout = () => {
+
+  localStorage.removeItem("token");
+
+  navigate("/login", { replace: true });
+
+};
 return (
 <nav
 className={
@@ -54,12 +66,27 @@ darkMode
           Dashboard
         </Link>
 
-        <Link
-          to="/login"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          Login
-        </Link>
+        {
+token ? (
+
+<button
+onClick={handleLogout}
+className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition"
+>
+Logout
+</button>
+
+) : (
+
+<Link
+to="/login"
+className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
+>
+Login
+</Link>
+
+)
+}
 
         <button
           onClick={() => setDarkMode(!darkMode)}

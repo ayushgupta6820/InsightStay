@@ -1,27 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Link } from "react-router-dom";
 
-function Login({ darkMode, setDarkMode }) {
+function Register({ darkMode, setDarkMode })  {
   const navigate = useNavigate();
-  useEffect(() => {
-
-const params = new URLSearchParams(window.location.search);
-
-const token = params.get("token");
-
-if (token) {
-
-localStorage.setItem("token", token);
-
-navigate("/dashboard");
-
-}
-
-}, [navigate]);
 
 const [email, setEmail] = useState("");
 
@@ -31,7 +16,7 @@ const [loading, setLoading] = useState(false);
 
 const [error, setError] = useState("");
 
-const handleLogin = async () => {
+const handleRegister = async () => {
 
 try{
 
@@ -39,7 +24,7 @@ setLoading(true);
 
 setError("");
 
-const response = await API.post("/auth/login",{
+await API.post("/auth/register",{
 
 email,
 
@@ -47,15 +32,9 @@ password
 
 });
 
-localStorage.setItem(
+alert("Registration Successful");
 
-"token",
-
-response.data.token
-
-);
-
-navigate("/dashboard");
+navigate("/login");
 
 }
 
@@ -65,7 +44,7 @@ setError(
 
 error.response?.data?.message ||
 
-"Login Failed"
+"Registration Failed"
 
 );
 
@@ -112,7 +91,7 @@ darkMode
 
 <h1 className="text-4xl font-bold text-center mb-3">
 
-  Welcome Back
+  Create Account
 
 </h1>
 
@@ -123,7 +102,7 @@ darkMode
             : "text-center text-gray-500 mb-8"
         }
       >
-        Sign in to access your dashboard
+        Create your InsightStay account
       </p>
 
       <form className="space-y-5">
@@ -151,28 +130,7 @@ darkMode
 : "w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
 }
 />
-
-        <div className="flex items-center justify-between">
-
-          <div className="flex items-center gap-2">
-            <input type="checkbox" />
-
-            <label
-              className={
-                darkMode
-                  ? "text-sm text-gray-300"
-                  : "text-sm text-gray-600"
-              }
-            >
-              Remember Me
-            </label>
-          </div>
-
-          <span className="text-sm text-blue-600 cursor-pointer hover:underline">
-            Forgot Password?
-          </span>
-
-        </div>
+  
               {
 error && (
 
@@ -187,7 +145,7 @@ error && (
 
 type="button"
 
-onClick={handleLogin}
+onClick={handleRegister}
 
 disabled={loading}
 
@@ -198,35 +156,14 @@ className="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 trans
 {
 
 loading
-
 ?
-
-"Signing In..."
-
+"Creating Account..."
 :
-
-"🔑 Sign In"
-
+"Create Account"
 }
 
 </button>
-<div className="mt-4">
-
-<button
-type="button"
-onClick={() => {
-window.location.href =
-"http://localhost:5000/api/auth/google";
-}}
-className="w-full border border-gray-300 py-3 rounded-xl hover:bg-gray-100 transition"
->
-
-🔵 Sign in with Google
-
-</button>
-
-</div>
-        <div className="text-center mt-5">
+       <div className="text-center mt-5">
 
   <span
     className={
@@ -235,48 +172,19 @@ className="w-full border border-gray-300 py-3 rounded-xl hover:bg-gray-100 trans
         : "text-gray-500"
     }
   >
-    Don't have an account?
+    Already have an account?
   </span>
 
   <Link
-
-to="/register"
-
-className="text-blue-600 font-semibold ml-2 hover:underline"
-
->
-
-Create Account
-
-</Link>
+    to="/login"
+    className="text-blue-600 font-semibold ml-2 hover:underline"
+  >
+    Sign In
+  </Link>
 
 </div>
-
       </form>
 
-      <p
-        className={
-          darkMode
-            ? "text-center text-sm text-gray-400 mt-6"
-            : "text-center text-sm text-gray-500 mt-6"
-        }
-      >
-        Demo Credentials
-
-<br /><br />
-
-Email:
-demo@insightstay.com
-
-<br />
-
-Password:
-password123
-
-<br /><br />
-
-
-      </p>
 
     </div>
 
@@ -289,4 +197,4 @@ password123
 );
 }
 
-export default Login;
+export default Register;
