@@ -1,6 +1,11 @@
+const rateLimit = require("express-rate-limit");
+const authRoutes=require("./routes/authRoutes");
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const session = require("express-session");
+const passport = require("passport");
+require("./config/passport");
 
 const connectDB = require("./config/database");
 
@@ -14,8 +19,34 @@ connectDB();
 app.use(cors());
 
 app.use(express.json());
+app.use(
+  session({
+    secret: process.env.JWT_SECRET,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+const authLimiter = rateLimit({
+
+    windowMs: 60 * 1000,
+
+    max: 5,
+
+    message: {
+
+        success: false,
+
+        message: "Too many authentication attempts. Please try again after 15 minutes."
+
+    }
+
+});
 
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/auth", authLimiter, authRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({
