@@ -1,8 +1,9 @@
+require("dotenv").config();
 const rateLimit = require("express-rate-limit");
 const authRoutes=require("./routes/authRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
 const session = require("express-session");
 const passport = require("passport");
 require("./config/passport");
@@ -16,7 +17,12 @@ const app = express();
 
 connectDB();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(
@@ -47,6 +53,7 @@ const authLimiter = rateLimit({
 
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({
