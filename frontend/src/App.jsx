@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
+import AIReview from "./pages/AIReview";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -74,6 +75,25 @@ function App() {
             </ProtectedRoute>
           }
         />
+        
+
+              <Route
+
+                  path="/ai-review"
+
+                  element={
+
+                  <AIReview
+
+                  darkMode={darkMode}
+
+                  setDarkMode={setDarkMode}
+
+      />
+
+      }
+
+      />
 
         <Route
           path="/components"
@@ -88,6 +108,8 @@ function App() {
         />
 
       </Routes>
+
+     
     </BrowserRouter>
   );
 }
