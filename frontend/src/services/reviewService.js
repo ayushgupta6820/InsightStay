@@ -1,5 +1,10 @@
 import API from "./api";
 
+export const getPublicReviews = async () => {
+  const res = await API.get("/reviews/public");
+  return res.data.data;
+};
+
 export const getAllReviews = async () => {
   const response = await API.get("/reviews");
   return response.data;

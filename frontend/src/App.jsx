@@ -1,12 +1,13 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 import AIReview from "./pages/AIReview";
-
+import ErrorBoundary from "./components/ErrorBoundary";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Dashboard from "./pages/Dashboard";
+import ExploreReviews from "./pages/ExploreReviews";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ComponentsDemo from "./pages/ComponentsDemo";
@@ -21,7 +22,9 @@ function App() {
   }, [darkMode]);
 
   return (
-    <BrowserRouter>
+   <ErrorBoundary>
+
+<BrowserRouter>
       <Routes>
 
         <Route
@@ -95,6 +98,16 @@ function App() {
 
       />
 
+      <Route
+  path="/explore"
+  element={
+    <ExploreReviews
+      darkMode={darkMode}
+      setDarkMode={setDarkMode}
+    />
+  }
+/>
+
         <Route
           path="/components"
           element={
@@ -111,6 +124,8 @@ function App() {
 
      
     </BrowserRouter>
+
+</ErrorBoundary>
   );
 }
 

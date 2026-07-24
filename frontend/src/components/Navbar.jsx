@@ -77,6 +77,17 @@ function Navbar({ darkMode, setDarkMode }) {
                AI Review
             </Link>
 
+            <Link
+  to="/explore"
+  className={
+    darkMode
+      ? "font-medium text-gray-200 hover:text-blue-400"
+      : "font-medium text-gray-700 hover:text-blue-600"
+  }
+>
+  Explore Reviews
+</Link>
+
             {token ? (
               <button
                 onClick={handleLogout}
