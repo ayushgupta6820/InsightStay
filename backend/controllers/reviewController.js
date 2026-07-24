@@ -5,7 +5,9 @@ const getAllReviews = async (req, res) => {
 
   try {
 
-    const reviews = await Review.find();
+    const reviews = await Review.find({
+  user: req.user.id,
+}).sort({ createdAt: -1 });
 
     res.status(200).json(reviews);
 
@@ -16,6 +18,28 @@ const getAllReviews = async (req, res) => {
     res.status(500).json({
       success: false,
       message: error.message,
+    });
+
+  }
+
+};
+
+const getPublicReviews = async (req, res) => {
+
+  try {
+
+    const reviews = await Review.find();
+
+    res.status(200).json({
+      success: true,
+      data: reviews
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message
     });
 
   }
@@ -58,11 +82,12 @@ const createReview = async (req, res) => {
     }
 
     const newReview = await Review.create({
-      guest,
-      hotel,
-      review,
-      sentiment,
-    });
+  guest,
+  hotel,
+  review,
+  sentiment,
+  user: req.user.id,
+});
 
     res.status(201).json({
       success: true,
@@ -80,15 +105,21 @@ const createReview = async (req, res) => {
 // PUT update review
 const updateReview = async (req, res) => {
   try {
-    const updatedReview = await Review.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const updatedReview = await Review.findOneAndUpdate(
 
+  {
+    _id: req.params.id,
+    user: req.user.id,
+  },
+
+  req.body,
+
+  {
+    new: true,
+    runValidators: true,
+  }
+
+);
     if (!updatedReview) {
       return res.status(404).json({
         success: false,
@@ -112,7 +143,13 @@ const updateReview = async (req, res) => {
 // DELETE review
 const deleteReview = async (req, res) => {
   try {
-    const deletedReview = await Review.findByIdAndDelete(req.params.id);
+    const deletedReview = await Review.findOneAndDelete({
+
+  _id: req.params.id,
+
+  user: req.user.id,
+
+});
 
     if (!deletedReview) {
       return res.status(404).json({
@@ -139,13 +176,15 @@ const searchReviews = async (req, res) => {
     const query = req.query.q || "";
 
     const reviews = await Review.find({
-      $or: [
-        { guest: { $regex: query, $options: "i" } },
-        { hotel: { $regex: query, $options: "i" } },
-        { review: { $regex: query, $options: "i" } },
-        { sentiment: { $regex: query, $options: "i" } },
-      ],
-    });
+  user: req.user.id,
+
+  $or: [
+    { guest: { $regex: query, $options: "i" } },
+    { hotel: { $regex: query, $options: "i" } },
+    { review: { $regex: query, $options: "i" } },
+    { sentiment: { $regex: query, $options: "i" } },
+  ],
+});
 
     res.status(200).json({
       success: true,
@@ -161,6 +200,7 @@ const searchReviews = async (req, res) => {
   
 };
 module.exports = {
+  getPublicReviews,
   getAllReviews,
   getReviewById,
   createReview,

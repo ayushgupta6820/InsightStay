@@ -25,6 +25,12 @@ const reviewSchema = new mongoose.Schema(
       required: true,
       enum: ["Positive", "Neutral", "Negative"],
     },
+
+    user: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+  required: true,
+},
   },
   {
     timestamps: true,

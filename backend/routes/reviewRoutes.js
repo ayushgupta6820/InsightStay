@@ -4,6 +4,7 @@ const express = require("express");
 const router = express.Router();
 
 const {
+  getPublicReviews,
   getAllReviews,
   getReviewById,
   createReview,
@@ -11,6 +12,8 @@ const {
   deleteReview,
   searchReviews,
 } = require("../controllers/reviewController");
+
+router.get("/public", getPublicReviews);
 
 router.get("/", verifyToken, getAllReviews);
 
