@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import Modal from "../components/ui/Modal";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -14,7 +15,7 @@ import {
   deleteReview,
 } from "../services/reviewService";
 function Dashboard({ darkMode, setDarkMode }) {
-
+  const navigate = useNavigate();
   const [reviews, setReviews] = useState([]);
 
   const [filteredReviews, setFilteredReviews] = useState([]);
@@ -22,8 +23,10 @@ function Dashboard({ darkMode, setDarkMode }) {
   const [loading, setLoading] = useState(true);
 
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const [search, setSearch] = useState("");
+  const searchTimeout = useRef(null);
   const [formData, setFormData] = useState({
   guest: "",
   hotel: "",
@@ -32,6 +35,9 @@ function Dashboard({ darkMode, setDarkMode }) {
 });
 
 const [editingId, setEditingId] = useState(null);
+const [deleteId, setDeleteId] = useState(null);
+
+const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const loadReviews = async () => {
 
@@ -41,7 +47,15 @@ const [editingId, setEditingId] = useState(null);
 
       const data = await getAllReviews();
 
-      setReviews(data);
+      const sorted=[...data].sort(
+
+(a,b)=>new Date(b.createdAt)-new Date(a.createdAt)
+
+);
+
+setReviews(sorted);
+
+setFilteredReviews(sorted);
 
       setFilteredReviews(data);
 
@@ -61,12 +75,24 @@ const [editingId, setEditingId] = useState(null);
 
   const handleSubmit = async () => {
 
-  if (
-    !formData.guest ||
-    !formData.hotel ||
-    !formData.review
-  ) {
-    alert("Please fill all fields.");
+ if (
+
+formData.guest.trim().length<3 ||
+
+formData.hotel.trim().length<3 ||
+
+formData.review.trim().length<10
+
+){
+    setError("Please fill all required fields.");
+
+setTimeout(()=>{
+
+setError("");
+
+},3000);
+
+return;
     return;
   }
 
@@ -93,6 +119,22 @@ const [editingId, setEditingId] = useState(null);
 
     await loadReviews();
 
+setSuccess(
+
+editingId
+
+? "Review updated successfully."
+
+: "Review added successfully."
+
+);
+
+setTimeout(() => {
+
+setSuccess("");
+
+},3000);
+
   } catch (error) {
 
     alert("Operation failed.");
@@ -115,9 +157,23 @@ const handleDelete = async (id) => {
 
     await loadReviews();
 
+    setSuccess("Review deleted successfully.");
+
+setTimeout(()=>{
+
+setSuccess("");
+
+},3000);
+
   } catch (error) {
 
-    alert("Failed to delete review.");
+    setError("Failed to delete review.");
+
+setTimeout(()=>{
+
+setError("");
+
+},3000);
 
   }
 
@@ -141,43 +197,59 @@ const handleEdit = (review) => {
 
 };
 
+ useEffect(() => {
+
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+
+    navigate("/login");
+
+    return;
+
+  }
+
+  loadReviews();
+
+}, []);
+
   useEffect(() => {
 
-    loadReviews();
+    if (searchTimeout.current) {
 
-  }, []);
+        clearTimeout(searchTimeout.current);
 
-  useEffect(() => {
+    }
 
-    const searchData = async () => {
+    searchTimeout.current = setTimeout(async () => {
 
-      if (search.trim() === "") {
+        if (search.trim() === "") {
 
-        setFilteredReviews(reviews);
+            setFilteredReviews(reviews);
 
-        return;
+            return;
 
-      }
+        }
 
-      try {
+        try {
 
-        const result = await searchReviews(search);
+            const result = await searchReviews(search);
 
-        setFilteredReviews(result);
+            setFilteredReviews(result);
 
-      }
+        }
 
-      catch {
+        catch {
 
-        setFilteredReviews([]);
+            setFilteredReviews([]);
 
-      }
+        }
 
-    };
+    },400);
 
-    searchData();
+    return ()=>clearTimeout(searchTimeout.current);
 
-  }, [search, reviews]);
+},[search,reviews]);
 
   const totalReviews = reviews.length;
 
@@ -213,7 +285,11 @@ const handleEdit = (review) => {
     return (
 
       <div className="min-h-screen flex items-center justify-center">
+        <h2 className="text-3xl font-bold mb-6">
 
+Loading Dashboard...
+
+</h2>
         <Loader />
 
       </div>
@@ -245,6 +321,24 @@ const handleEdit = (review) => {
         />
       </div>
     )}
+
+    {
+success && (
+
+<div className="mb-6">
+
+<Toast
+
+message={success}
+
+type="success"
+
+/>
+
+</div>
+
+)
+}
     <div
   className={
     darkMode
@@ -555,9 +649,27 @@ const handleEdit = (review) => {
 
         <div className="text-center py-10">
 
-          <p className="text-lg text-gray-500">
-            No reviews found.
-          </p>
+          <div className="text-center py-12">
+
+<div className="text-6xl mb-4">
+
+📝
+
+</div>
+
+<h2 className="text-2xl font-bold">
+
+No Reviews Yet
+
+</h2>
+
+<p className="mt-3 text-gray-500">
+
+Add your first hotel review to begin tracking guest feedback.
+
+</p>
+
+</div>
 
         </div>
 
@@ -593,7 +705,15 @@ const handleEdit = (review) => {
                   >
                     🏨 {item.hotel}
                   </p>
-
+                    <p
+  className={
+    darkMode
+      ? "text-xs text-gray-500 mt-1"
+      : "text-xs text-gray-400 mt-1"
+  }
+>
+  📅 {new Date(item.createdAt).toLocaleDateString()}
+</p>
                 </div>
 
                 <span
@@ -629,7 +749,13 @@ const handleEdit = (review) => {
   </button>
 
   <button
-    onClick={() => handleDelete(item._id)}
+    onClick={() => {
+
+setDeleteId(item._id);
+
+setShowDeleteModal(true);
+
+}}
     className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg transition"
   >
     Delete
@@ -648,7 +774,28 @@ const handleEdit = (review) => {
     </div>
 
   </main>
+      <Modal
+  isOpen={showDeleteModal}
+  darkMode={darkMode}
+  title="Delete Review"
+  message="Are you sure you want to delete this review? This action cannot be undone."
+  onCancel={() => {
 
+    setShowDeleteModal(false);
+
+    setDeleteId(null);
+
+  }}
+  onConfirm={() => {
+
+    handleDelete(deleteId);
+
+    setShowDeleteModal(false);
+
+    setDeleteId(null);
+
+  }}
+/>
   <Footer darkMode={darkMode} />
 
 </div>
