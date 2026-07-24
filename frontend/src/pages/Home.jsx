@@ -8,7 +8,7 @@ import Footer from "../components/Footer";
 import Loader from "../components/ui/Loader";
 import Toast from "../components/ui/Toast";
 
-import { getAllReviews } from "../services/reviewService";
+import { getPublicReviews } from "../services/reviewService";
 function Home({ darkMode, setDarkMode }) {
   const [reviews, setReviews] = useState([]);
 
@@ -22,7 +22,7 @@ useEffect(() => {
 
     try {
 
-      const data = await getAllReviews();
+      const data = await getPublicReviews();
 
       setReviews(data);
 
